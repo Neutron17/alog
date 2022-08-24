@@ -77,3 +77,66 @@ const char *pidname(int pid) {
 	return name;
 }
 
+struct aiocb *async_read(int file, void *buff, size_t mem_sz, size_t n) {
+	struct aiocb *aio = calloc(sizeof(*aio), 1);
+	if(!aio) {
+		LOG(L_ERR, "Couldn't allocate for async_read/aiocb");
+		return NULL;
+	}
+	aio->aio_buf = buff;
+	aio->aio_fildes = file;
+	aio->aio_nbytes = mem_sz*n;
+	aio->aio_offset = 0;
+	if(aio_read(aio) < 0) {
+		LOG(L_ERR, "aoi_read failed");
+		free(aio);
+		return NULL;
+	}
+	return aio;
+}
+
+struct aiocb *async_read_str(int file, char *buff, size_t n) {
+	struct aiocb *aio = calloc(sizeof(*aio), 1);
+	if(!aio) {
+		LOG(L_ERR, "Couldn't allocate for async_read/aiocb");
+		return NULL;
+	}
+	aio->aio_buf = buff;
+	aio->aio_fildes = file;
+	aio->aio_nbytes = n;
+	aio->aio_offset = 0;
+	if(aio_read(aio) < 0) {
+		LOG(L_ERR, "aoi_read failed");
+		free(aio);
+		return NULL;
+	}
+	return aio;
+}
+
+struct aiocb *async_write(int file, void *buff, size_t mem_sz, size_t n) {
+	struct aiocb *aio = calloc(sizeof(*aio), 1);
+	aio->aio_buf = buff;
+	aio->aio_fildes = file;
+	aio->aio_nbytes = n;
+	if(aio_write(aio) < 0) {
+		LOG(L_ERR, "aoi_write failed");
+		return NULL;
+	}
+	return aio;
+}
+struct aiocb *async_write_str(int file, char *str, size_t n) {
+	struct aiocb *aio = calloc(sizeof(*aio), 1);
+	if(!aio) {
+		LOG(L_ERR, "Couldn't allocate for async_write/aiocb");
+		return NULL;
+	}
+	aio->aio_buf = str;
+	aio->aio_fildes = file;
+	aio->aio_nbytes = strlen(str);
+	if(aio_write(aio) < 0) {
+		LOG(L_ERR, "aoi_write failed");
+		return NULL;
+	}
+	return aio;
+}
+

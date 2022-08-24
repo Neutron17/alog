@@ -1,5 +1,7 @@
+#include <aio.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -15,6 +17,8 @@ static const char *logprefix[4] = {
 
 pthread_mutex_t logmutex;
 
+static struct aiocb defAIO = {0};
+static struct aiocb *logAio(struct aiocb *aio);
 static void logtofile(const char *msg);
 // appends runtime info to dest
 static void appendRTimeInfo(char *dest, const char *file,
@@ -37,7 +41,25 @@ void loginit(enum LogLevel _stdoutMask, enum LogLevel _fileMask) {
 }
 
 void logdestroy() {
-	pthread_mutex_lock(&logmutex);
+	if(pthread_mutex_trylock(&logmutex) == -1){// && errno == EBUSY) {
+		while(aio_error(logAio(NULL)) == EINPROGRESS);
+		free(logAio(NULL));
+		logAio(NULL+1);
+		goto cl;
+	}
+	struct aiocb *aio = logAio(NULL);
+	if(aio) {
+		//unsigned depth;
+		//while(aio_error(aio) == EINPROGRESS && depth < MAX_AIO_WAIT)
+		//	depth++;
+		const struct aiocb *aios[1];
+		aios[0] = aio;
+		if(aio_suspend(aios, 1, NULL) == 0)
+			free(aio);
+		//if(depth != 500)
+		//	free(aio);
+	}
+cl:
 	if(logfile) {
 		fclose(logfile);
 		logfile = NULL;
@@ -127,13 +149,22 @@ static void appendRTimeInfo(char *dest, const char *file,
 			line, strerror(errno));
 }
 
+static struct aiocb *logAio(struct aiocb *aio) {
+	static struct aiocb *val;
+	if(aio == NULL)
+		return val;
+	if(val != NULL)
+		free(val);
+	val = aio;
+	return NULL;
+}
+
 static void logtofile(const char *msg) {
 	pthread_mutex_lock(&logmutex);
 	if(!logfile)
 		return;
 	// Error already printed in loginit
-	fprintf(logfile, "%s", msg);
-	//async_write_str(fileno(logfile), (char *)msg, 512);
+	logAio(async_write_str(fileno(logfile), (char *)msg, strnlen(msg, 512)));
 	pthread_mutex_unlock(&logmutex);
 }
 

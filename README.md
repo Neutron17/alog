@@ -1,10 +1,14 @@
-# NLog
-Basic logger for c
+# NALog
+Asynchronous logger for c
+
+check out [nlog](https://github.com/Neutron17/nlog)
+
+# WARNING: This project is unstable(doesn't work) I stopped working on it, if anyone wants to take over this project, feel free to fork it
 
 ## Usage
 
 ```c
-#include <nlog/log.h>
+#include <alog/log.h>
 
 int main() {
 	loginit(
@@ -24,7 +28,7 @@ int main() {
 	return 0;
 }
 ```
-compile with ```-lnlog```
+compile with ```-lalog```
 
 ## Installation
 
@@ -37,7 +41,7 @@ sudo make install
 anyone can create pull requests, fork the project, etc as long as it doesn't violate the
 license (GNU GPL 3.0)
 
-### Old version 1
+## Why I stopped the development of it
 
 this was an asynchronous logger, but the hassle wasn't worth it,
 
@@ -50,11 +54,8 @@ this was an asynchronous logger, but the hassle wasn't worth it,
 
  the latest (unstable)version of this is available  [on this pastebin(log.c)](https://pastebin.com/E3y2hWzT) with version 1.0
 
-### Old version 2
-
-the oldest version is [clogger](https://github.com/Neutron17/clogger)
-it was archived because I stoped it's development and moved onto this
-
-It allowed multiple loggers at the same time, if you want that you can check it out
-but it lacks a lot of features
+## Helping material for contributors
+ - man page aio
+ - [intel.com](https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/libraries/intel-s-c-asynchronous-i-o-extensions-windows-os/intel-s-c-asynchronous-i-o-library-for-windows-os/example-for-aio-read-and-aio-write-functions.html)
+ - google
 

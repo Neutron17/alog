@@ -1,12 +1,12 @@
 CC = cc
 
-PNAME = libnlog
+PNAME = libalog
 
 SRC  = $(shell find src -name "*.c")
 OBJ  = $(SRC:.c=.o)
 BIN = build
 PREFIX = /usr
-instDir = $(PREFIX)/include/nlog
+instDir = $(PREFIX)/include/alog
 
 CCFLAGS = -ggdb
 
